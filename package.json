@@ -5,6 +5,11 @@
   "main": "dist/commonjs/index.js",
   "module": "dist/esm/index.js",
   "bin": "dist/commonjs/run.js",
+  "homepage": "https://github.com/RafaelSalguero/evm-assembler",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/RafaelSalguero/evm-assembler"
+  },
   "scripts": {
     "test": "jest",
     "buildCommonJs": "tsc -m commonjs -outDir dist/commonjs -d false",
