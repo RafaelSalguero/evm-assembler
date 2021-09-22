@@ -1,5 +1,5 @@
 import { opCodes } from "./opcodes";
-import type { HexToken, LabelDef, LabelOp, LabelOpName, OpCode, OpCodeName, Token } from "./types";
+import type { Constant, HexToken, LabelDef, LabelOp, LabelOpName, OpCode, OpCodeName, Token } from "./types";
 import { assertUnreachable, flatten, mapMany } from "simple-pure-utils";
 
 function removeComments(code: string): string {
@@ -31,7 +31,7 @@ export function tokenize(code: string): Token[] {
     );
 }
 
-function constantByteSize(hex: string): number {
+export function constantByteSize(hex: string): number {
     return Math.ceil((hex.length - 2) / 2);
 }
 
@@ -48,6 +48,7 @@ function tokenizeOpCode(code: string): OpCode | null {
 
     return null;
 }
+
 
 function tokenizeLabelDef(code: string): Token[] | null {
     {
@@ -107,7 +108,6 @@ function tokenizeCall(code: string): Token[] | null {
         const funcTokens = tokenize(func);
         const pTokens = tokenizeParams(params);
 
-        pTokens.reverse();
         return [
             ...pTokens,
             ...funcTokens
@@ -143,6 +143,20 @@ export function pushConstant(hex: string): HexToken[] {
         }]
 }
 
+function tokenizeAuxData(code: string): Constant | null {
+    const prefix = "auxdata:";
+    if (code.startsWith(prefix)) {
+        const hex = code.substr(prefix.length);
+        return {
+            type: "const",
+            hex: hex,
+            size: constantByteSize(hex)
+        }
+    }
+    return null;
+}
+
+
 export function toHex(num: number) {
     const h = num.toString(16);
     return "0x" + (h.length % 2 == 1 ? "0" : "") + h;
@@ -157,6 +171,11 @@ function tokenizePart(part: string): Token[] {
     const hexRegex = /^0x[\da-f]+$/i;
     if (hexRegex.test(part)) {
         return pushConstant(part);
+    }
+
+    const auxDataToken = tokenizeAuxData(part);
+    if (auxDataToken != null) {
+        return [auxDataToken];
     }
 
     const labelOpToken = tokenizeLabelOp(part);
@@ -182,6 +201,6 @@ function tokenizePart(part: string): Token[] {
 }
 
 function tokenizeParams(params: string): Token[] {
-    return flatten(params.split(/,\s*/).map(tokenize));
+    return flatten(params.split(/,\s*/).reverse().map(tokenize));
 }
 
