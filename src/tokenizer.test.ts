@@ -84,6 +84,7 @@ auxdata: 0x1234
     `);
 
     const expected: Token[] = [
+        op("invalid"),
         {
             type: "const",
             size: 2,
@@ -119,14 +120,30 @@ test("labelRef", () => {
     const actual = tokenize(`
 dup1
 label_0
-dup1
+dup2
 label_0:
-dup 1
-dup 1
+dup3
+dup4
     `);
 
     const expected: Token[] = [
-        op("dup1")
+        op("dup1"),
+        {
+            type: "labelOp",
+            label: "label_0",
+            op: "dataOffset"
+        },
+        op("dup2"),
+        {
+            type: "labelBegin",
+            name: "label_0"
+        },
+        {
+            type: "labelEnd"
+        },
+        op("jumpdest"),
+        op("dup3"),
+        op("dup4"),
     ];
 
     expect(actual).toEqual(expected);
