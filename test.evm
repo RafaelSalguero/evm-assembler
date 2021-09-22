@@ -17,7 +17,7 @@ tag_1:
   codecopy
   0x00
   return
-stop
+invalid
 
 sub_0: assembly {
         /* "src/proxy.sol":123:1084  contract Proxy {... */

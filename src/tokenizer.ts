@@ -8,23 +8,23 @@ function removeComments(code: string): string {
     return code.replace(multiLineComment, "").replace(singleLineComment, "");
 }
 
-function reduceSpaces(code: string): string {
+export function reduceSpaces(code: string): string {
     const space = /(\s|\n)+/g;
     return code.replace(space, " ");
 }
 
-function reduceOpSpaces(code: string): string {
-    const r1 = /\s*([(,:])\s*/g;
+export function reduceOpSpaces(code: string): string {
+    const r1 = /[^\S\r\n]*([(,:{])[^\S\r\n]*/g;
     code = code.replace(r1, "$1");
 
-    const r2 = /\s*(\))/g;
+    const r2 = /[^\S\r\n]*(\)})/g;
     code = code.replace(r2, "$1");
     return code;
 }
 
 export function tokenize(code: string): Token[] {
     return flatten(
-        reduceOpSpaces(reduceSpaces(removeComments(code)))
+        reduceSpaces(reduceOpSpaces(removeComments(code)))
             .split(" ")
             .filter(x => x != "")
             .map(tokenizePart)
@@ -61,10 +61,10 @@ function tokenizeLabelDef(code: string): Token[] | null {
                     type: "labelBegin",
                     name: match[1]
                 },
-                throwIfNull(tokenizeOpCode("jumpdest")),
                 {
                     type: "labelEnd",
-                }
+                },
+                throwIfNull(tokenizeOpCode("jumpdest")),
             ];
         }
     }
@@ -143,23 +143,28 @@ export function pushConstant(hex: string): HexToken[] {
         }]
 }
 
-function tokenizeAuxData(code: string): Constant | null {
+function tokenizeAuxData(code: string): HexToken[] | null {
     const prefix = "auxdata:";
     if (code.startsWith(prefix)) {
         const hex = code.substr(prefix.length);
-        return {
-            type: "const",
-            hex: hex,
-            size: constantByteSize(hex)
-        }
+        return [
+            throwIfNull(tokenizeOpCode("invalid")),
+            {
+                type: "const",
+                hex: hex,
+                size: constantByteSize(hex)
+            }
+        ]
     }
     return null;
 }
 
 
-export function toHex(num: number) {
+export function toHex(num: number, size: number) {
     const h = num.toString(16);
-    return "0x" + (h.length % 2 == 1 ? "0" : "") + h;
+
+    const pad = (size * 2) - h.length;
+    return "0x" + "0".repeat(pad) + h;
 }
 
 function tokenizePart(part: string): Token[] {
@@ -175,7 +180,7 @@ function tokenizePart(part: string): Token[] {
 
     const auxDataToken = tokenizeAuxData(part);
     if (auxDataToken != null) {
-        return [auxDataToken];
+        return auxDataToken;
     }
 
     const labelOpToken = tokenizeLabelOp(part);

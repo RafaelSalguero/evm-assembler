@@ -1,6 +1,6 @@
 import { opCodes } from "./opcodes";
 import type { HexToken, LabelDef, LabelOp, LabelOpName, OpCode, OpCodeName, Token } from "./types";
-import { assertUnreachable, flatten, mapMany } from "simple-pure-utils";
+import { assertUnreachable, flatten, mapMany, sum } from "simple-pure-utils";
 import { pushConstant, toHex } from "./tokenizer";
 
 function isHexToken(x: Token): x is HexToken {
@@ -10,6 +10,27 @@ function isHexToken(x: Token): x is HexToken {
 
 function isLabelDef(x: Token): x is LabelDef {
     return x.type == "labelBegin" || x.type == "labelEnd";
+}
+
+
+export function estimateLabelMaxSize(tokens: Token[]): number {
+
+    const contractSizeWithoutLabels = sum(tokens.map(x => isHexToken(x) ? x.size : 0));
+    const labelCount = tokens.filter(x => x.type == "labelOp").length;
+    const maxTheoricalLabelSize = 15;
+    // we need to safisfy 
+    // labelSize >= log256(contractSizeWithoutLabels + (1 byte + labelSize) * labelCount)
+
+    for (let labelSize = 1; labelSize < maxTheoricalLabelSize; labelSize++) {
+        const contractSize = contractSizeWithoutLabels + (1 + labelSize) * labelCount;
+        const contractSizeBytes = Math.log(contractSize) / Math.log(256);
+
+        if (labelSize >= contractSizeBytes) {
+            return labelSize;
+        }
+    }
+
+    return maxTheoricalLabelSize;
 }
 
 export function labelize(tokens: Token[]): HexToken[] {
@@ -28,18 +49,26 @@ export function labelize(tokens: Token[]): HexToken[] {
         [name: string]: Label
     } = {};
 
+
+
     // define labels:
     let index = 0;
+    const labelSize = estimateLabelMaxSize(tokens);
     for (const token of tokens) {
         if (token.type == "labelBegin") {
             stack.push({
                 index,
                 name: token.name
             });
+            index = 0;
         }
 
         if (token.type == "labelEnd") {
-            const label = stack.pop()!;
+            const label = stack.pop();
+            if (label == null) {
+                throw new Error("Stack is empty at index " + index);
+            }
+            index = label.index + index;
             const size = index - label.index;
             labels[label.name] = {
                 index: label.index,
@@ -50,6 +79,10 @@ export function labelize(tokens: Token[]): HexToken[] {
         if (isHexToken(token)) {
             index += token.size;
         }
+        if (token.type == "labelOp") {
+            index += 1; //push
+            index += labelSize;
+        }
     }
 
     return flatten(tokens
@@ -59,14 +92,14 @@ export function labelize(tokens: Token[]): HexToken[] {
             if (isLabelDef(x)) throw new Error("Unreachable");
 
             const label = labels[x.label];
-            if (label == null) throw new Error(`Label '${label}' not found`);
+            if (label == null) throw new Error(`Label '${x.label}' not found`);
 
             if (x.op == "dataOffset") {
-                return pushConstant(toHex(label.index));
+                return pushConstant(toHex(label.index, labelSize));
             }
 
             if (x.op == "dataSize") {
-                return pushConstant(toHex(label.size));
+                return pushConstant(toHex(label.size, labelSize));
             }
 
             assertUnreachable(x.op);

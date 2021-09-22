@@ -2,9 +2,16 @@
   "name": "evm-assembler",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/commonjs/index.js",
+  "module": "dist/esm/index.js",
+  "bin": "dist/run",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "buildCommonJs": "tsc -m commonjs -outDir dist/commonjs -d false",
+    "buildES6": "tsc -d -declarationDir dist/types",
+    "build": "npm run buildES6 && npm run buildCommonJs",
+    "prepublishOnly": "npm run build",
+    "tsc": "tsc --noemit"
   },
   "jest": {
     "transform": {
