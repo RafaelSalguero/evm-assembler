@@ -4,7 +4,7 @@
 
 ## `solc --asm` compatible assembler
 
-1.- Write EVM assembly in the same format as `solc`
+1.- Write EVM assembly in the same format as `solc --asm` output
 
 ```evm
   mstore(0x40, 0x80)
