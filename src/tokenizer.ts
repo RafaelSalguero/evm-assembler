@@ -132,13 +132,17 @@ function tokenizeLabelOp(code: string): LabelOp | null {
     return null;
 }
 
+function fixHex(hex: string): string {
+    return "0x" + (hex.length % 2 == 1 ? "0" : "") + hex.substr(2).toLowerCase();
+}
+
 export function pushConstant(hex: string): HexToken[] {
     const size = constantByteSize(hex);
     return [
         throwIfNull(tokenizeOpCode("push" + size)),
         {
             type: "const",
-            hex: hex.toLowerCase(),
+            hex: fixHex(hex),
             size
         }]
 }

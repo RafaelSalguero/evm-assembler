@@ -3,7 +3,30 @@ import { op } from "./test-helper";
 import { constantByteSize, pushConstant, reduceOpSpaces, tokenize } from "./tokenizer";
 import { Constant, HexToken, OpCode, OpCodeName, Token } from "./types";
 
+test("simple call", () => {
+    const actual = tokenize('mstore(0x40, 0x80)');
 
+    const expected: HexToken[] = [
+        ...pushConstant("0x80"),
+        ...pushConstant("0x40"),
+        op("mstore")
+    ];
+
+    expect(actual).toEqual(expected);
+});
+
+test("simple call 2", () => {
+    const actual = tokenize('calldatacopy(0x1, 0x2, calldatasize)');
+
+    const expected: HexToken[] = [
+        op("calldatasize"),
+        ...pushConstant("0x02"),
+        ...pushConstant("0x01"),
+        op("calldatacopy")
+    ];
+
+    expect(actual).toEqual(expected);
+});
 
 test("simple ops", () => {
     const actual = tokenize(`
