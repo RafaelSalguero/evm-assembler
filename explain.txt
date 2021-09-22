@@ -1,0 +1,35 @@
+60
+80
+60
+40
+52 //mstore(0x40, 0x80)
+34 //callvalue
+80 //dup1
+15 //izzero
+60 //push1
+0f //tag_1
+57 //jumpi
+60
+00 //0x00
+80 // dup1
+fd //revert
+5b //jumpdest
+50 // pop
+60
+67 //dataSize(sub_0)
+80 // dup1
+60
+1d //dataOffset(sub_0)
+60
+00 //0x00
+39 // codecopy
+60
+00 //0x00 
+f3 //return
+fe //invalid (stop)
+60
+80
+60
+40
+52 //mstore(0x40, 0x80)
+366031576000808182833473a6014eee4c8316f19e89e721a0e46dd0704201fa5af1602d578081fd5b8081f35b6000368182378081368384733323b6c94847d1cf98aae1ac0a1d745d3af91e5e5af2602d578081fdfea164736f6c6343000807000a

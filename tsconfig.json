@@ -1,0 +1,23 @@
+{
+    "compilerOptions": {
+        "strict": true,
+        // Choose your target based on which browsers you'd like to support.
+        "target": "es2017",
+        "jsx": "react",
+        // Required: Use module="esnext" so that TS won't compile/disallow any ESM syntax.
+        "module": "commonjs",
+        // Optional, but recommended
+        "moduleResolution": "node",
+        // Optional, but recommended
+        "baseUrl": ".",
+        "skipLibCheck": true,
+        "noImplicitAny": false,
+        "allowUnreachableCode": true,
+        "forceConsistentCasingInFileNames": true,
+        "isolatedModules": true,
+        "outDir": "js"
+    },
+    "include": [
+        "src/**/*"
+    ]
+}
