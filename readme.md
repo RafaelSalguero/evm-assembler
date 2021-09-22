@@ -6,7 +6,7 @@
 
 1.- Write EVM assembly in the same format as `solc --asm` output
 
-```evm
+```solidity
   mstore(0x40, 0x80)
   callvalue
   dup1
@@ -35,4 +35,9 @@ sub_0: assembly {
 2.- Compile it
 ```
 npx solcasm contract.evm contract.bin
+```
+
+output:
+```hex
+6080604052348015600f57600080fd5b50600580601d6000396000f3006080604052
 ```

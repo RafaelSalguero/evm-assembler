@@ -1,10 +1,10 @@
 {
   "name": "solcasm",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "description": "",
   "main": "dist/commonjs/index.js",
   "module": "dist/esm/index.js",
-  "bin": "dist/run",
+  "bin": "dist/commonjs/run.js",
   "scripts": {
     "test": "jest",
     "buildCommonJs": "tsc -m commonjs -outDir dist/commonjs -d false",

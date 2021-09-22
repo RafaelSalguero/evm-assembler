@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import { compile } from "./index";
 import * as fs from "fs";
 import { exit } from "process";
