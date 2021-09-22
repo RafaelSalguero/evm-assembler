@@ -2,6 +2,11 @@
 
 [![Build Status](https://travis-ci.com/RafaelSalguero/pureutils.svg?branch=master)](https://travis-ci.com/RafaelSalguero/pureutils)
 
+## Install it
+```
+npm i solcasm
+```
+
 ## `solc --asm` compatible assembler
 
 1.- Write EVM assembly in the same format as `solc --asm` output
