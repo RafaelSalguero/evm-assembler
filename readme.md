@@ -1,5 +1,7 @@
 # solcasm (evm-assembler)
 
+[![Build Status](https://travis-ci.com/RafaelSalguero/pureutils.svg?branch=master)](https://travis-ci.com/RafaelSalguero/pureutils)
+
 ## `solc --asm` compatible assembler
 
 1.- Write EVM assembly in the same format as `solc`
